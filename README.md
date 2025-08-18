@@ -1,4 +1,4 @@
-# Stable AI Chat
+# Stable Diffusion AI Chat
 
 A Django-based web application that provides an AI-powered chat interface with image generation capabilities using Stability AI's API. Users can have conversations and generate images from text prompts with automatic language translation support.
 
