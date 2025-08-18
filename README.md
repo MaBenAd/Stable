@@ -33,7 +33,7 @@ A Django-based web application that provides an AI-powered chat interface with i
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/MaBenAd/Stable.git
    cd stable
    ```
 
