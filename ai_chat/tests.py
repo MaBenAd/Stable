@@ -60,12 +60,12 @@ class ChatViewsTests(TestCase):
     def test_conversation_title_from_first_prompt(self, mock_gen, _mock_translate):
         self.login()
         mock_gen.return_value = []
-        first_prompt = 'Première idée de prompt pour nommer la conversation'
+        first_prompt = 'Premi\u00e8re id\u00e9e de prompt pour nommer la conversation'
         resp = self.client.post(reverse('ai_chat:send_message'), data=json.dumps({'message': first_prompt}), content_type='application/json')
         self.assertEqual(resp.status_code, 200, msg=f"Unexpected status: {resp.status_code}, body={resp.content}")
         conv_id = resp.json()['conversation_id']
         conv = Conversation.objects.get(id=conv_id)
-        self.assertTrue(conv.title.startswith('Première idée'), msg=f"Title not set from first prompt: '{conv.title}'")
+        self.assertTrue(conv.title.startswith('Premi\u00e8re id\u00e9e'), msg=f"Title not set from first prompt: '{conv.title}'")
 
     def test_send_message_empty_returns_400(self):
         self.login()
@@ -113,4 +113,122 @@ class ChatViewsTests(TestCase):
         # Should redirect to chat after signup
         self.assertEqual(resp2.status_code, 302)
         self.assertTrue(User.objects.filter(username='newuser').exists())
+
+# -------------------------
+# Tests pour ai_chat.services.stability
+import base64
+from unittest.mock import patch
+
+from ai_chat.services import stability
+from ai_chat.services.stability import StabilityAIError
+
+
+class FakeResponse:
+    def __init__(self, status_code=200, headers=None, content=b"", json_data=None):
+        self.status_code = status_code
+        self.headers = headers or {}
+        self.content = content
+        self._json_data = json_data
+
+    def json(self):
+        if self._json_data is None:
+            raise ValueError("No JSON data")
+        return self._json_data
+
+
+class StabilityServiceTests(TestCase):
+
+    def test_validate_prompt_accepts_clean_prompt(self):
+        clean = stability.validate_prompt("  Un joli chat  ")
+        self.assertEqual(clean, "Un joli chat")
+
+    def test_validate_prompt_rejects_empty_or_short_or_harmful(self):
+        with self.assertRaises(StabilityAIError):
+            stability.validate_prompt("")
+        with self.assertRaises(StabilityAIError):
+            stability.validate_prompt("a")
+        with self.assertRaises(StabilityAIError):
+            stability.validate_prompt("This contains hack word")
+
+    def test_normalize_dimensions_for_sdxl_adjusts_invalid(self):
+        url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
+        w, h = stability._normalize_dimensions_for_url(url, 123, 456)
+        self.assertEqual((w, h), (1024, 1024))
+
+    def test_normalize_dimensions_for_sdxl_keeps_allowed(self):
+        url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
+        w, h = stability._normalize_dimensions_for_url(url, 1024, 1024)
+        self.assertEqual((w, h), (1024, 1024))
+
+    def test_parse_generation_response_with_json_base64(self):
+        sample = b"FAKEPNG"
+        b64 = base64.b64encode(sample).decode()
+        resp = FakeResponse(status_code=200, headers={"Content-Type": "application/json"}, json_data={"artifacts": [{"base64": b64}]})
+        images = stability._parse_generation_response(resp)
+        self.assertEqual(len(images), 1)
+        self.assertEqual(images[0][0], sample)
+
+    def test_parse_generation_response_with_binary_image(self):
+        content = b"\x89PNG..."
+        resp = FakeResponse(status_code=200, headers={"Content-Type": "image/png"}, content=content, json_data=None)
+        images = stability._parse_generation_response(resp)
+        self.assertEqual(len(images), 1)
+        self.assertEqual(images[0][0], content)
+        self.assertEqual(images[0][1], 'png')
+
+    @override_settings(STABILITY_API_KEY='testkey')
+    @patch('ai_chat.services.stability.requests.post')
+    def test_generate_images_raises_on_401(self, mock_post):
+        mock_post.return_value = FakeResponse(status_code=401, headers={"Content-Type": "application/json"}, json_data={"error": "unauthorized"})
+        with self.assertRaises(StabilityAIError):
+            stability.generate_images("Un prompt valide")
+
+    @override_settings(STABILITY_API_KEY='testkey')
+    @patch('ai_chat.services.stability.requests.post')
+    def test_generate_images_returns_images_from_json(self, mock_post):
+        sample = b"IMGDATA"
+        b64 = base64.b64encode(sample).decode()
+        mock_post.return_value = FakeResponse(status_code=200, headers={"Content-Type": "application/json"}, json_data={"artifacts": [{"base64": b64}]})
+        images = stability.generate_images("Un prompt valide")
+        self.assertEqual(len(images), 1)
+        self.assertEqual(images[0][0], sample)
+
+# -------------------------
+# Tests pour le formulaire SignUpForm
+from ai_chat.forms import SignUpForm
+
+
+class SignUpFormTests(TestCase):
+
+    def test_signup_form_valid_data_creates_form(self):
+        data = {
+            'username': 'newuser',
+            'email': 'new@example.com',
+            'password1': 'StrongPassw0rd!',
+            'password2': 'StrongPassw0rd!'
+        }
+        form = SignUpForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_signup_form_invalid_password_mismatch(self):
+        data = {
+            'username': 'newuser2',
+            'email': 'new2@example.com',
+            'password1': 'pass1',
+            'password2': 'pass2'
+        }
+        form = SignUpForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('password2', form.errors)
+
+    def test_signup_form_requires_email(self):
+        data = {
+            'username': 'nouser',
+            'email': '',
+            'password1': 'StrongPassw0rd!',
+            'password2': 'StrongPassw0rd!'
+        }
+        form = SignUpForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
 
