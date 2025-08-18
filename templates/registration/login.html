@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - AI Image Generator</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .login-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .form-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Logo et titre -->
+            <div class="text-center">
+                <div class="mx-auto h-20 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-magic text-white text-3xl"></i>
+                </div>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    Connexion
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Accédez à votre générateur d'images IA
+                </p>
+            </div>
+            
+            <!-- Formulaire de connexion -->
+            <form class="mt-8 space-y-6" method="post">
+                {% csrf_token %}
+                
+                <!-- Messages d'erreur -->
+                {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Erreur de connexion
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Nom d'utilisateur -->
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nom d'utilisateur
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input id="id_username" 
+                               name="username" 
+                               type="text" 
+                               required 
+                               class="form-input appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                               placeholder="Entrez votre nom d'utilisateur">
+                    </div>
+                </div>
+                
+                <!-- Mot de passe -->
+                <div>
+                    <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">
+                        Mot de passe
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input id="id_password" 
+                               name="password" 
+                               type="password" 
+                               required 
+                               class="form-input appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                               placeholder="Entrez votre mot de passe">
+                    </div>
+                </div>
+                
+                <!-- Bouton de connexion -->
+                <div class="space-y-4">
+                    <button type="submit" 
+                            class="btn-login group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt text-blue-200 group-hover:text-blue-100"></i>
+                        </span>
+                        Se connecter
+                    </button>
+                    
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-gray-50 text-gray-500">ou</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'ai_chat:signup' %}" 
+                       class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Créer un nouveau compte
+                    </a>
+                </div>
+                
+                <!-- Liens utiles -->
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Besoin d'aide ? 
+                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                            Contactez le support
+                        </a>
+                    </p>
+                </div>
+            </form>
+            
+
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // Focus sur le premier champ
+        document.getElementById('id_username').focus();
+        
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.style.opacity = '0';
+            form.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                form.style.transition = 'all 0.5s ease-out';
+                form.style.opacity = '1';
+                form.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

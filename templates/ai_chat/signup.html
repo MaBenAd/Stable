@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - AI Image Generator</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .form-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-signup {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .help-text {
+            color: #6b7280;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Logo et titre -->
+            <div class="text-center">
+                <div class="mx-auto h-20 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-magic text-white text-3xl"></i>
+                </div>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    Créer un compte
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Rejoignez AI Image Generator
+                </p>
+            </div>
+            
+
+            
+            <!-- Formulaire d'inscription -->
+            <form class="mt-8 space-y-6" method="post">
+                {% csrf_token %}
+                
+                <!-- Nom d'utilisateur -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nom d'utilisateur
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% if form.username.help_text %}
+                        <p class="help-text">{{ form.username.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Email -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Adresse email
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% if form.email.help_text %}
+                        <p class="help-text">{{ form.email.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Mot de passe -->
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Mot de passe
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        {{ form.password1 }}
+                    </div>
+                    {% if form.password1.errors %}
+                        {% for error in form.password1.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% if form.password1.help_text %}
+                        <p class="help-text">{{ form.password1.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Confirmation du mot de passe -->
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Confirmer le mot de passe
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        {{ form.password2 }}
+                    </div>
+                    {% if form.password2.errors %}
+                        {% for error in form.password2.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% if form.password2.help_text %}
+                        <p class="help-text">{{ form.password2.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Bouton d'inscription -->
+                <div>
+                    <button type="submit" 
+                            class="btn-signup group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus text-blue-200 group-hover:text-blue-100"></i>
+                        </span>
+                        Créer mon compte
+                    </button>
+                </div>
+                
+                <!-- Lien vers la connexion -->
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Déjà un compte ? 
+                        <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                            Se connecter
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // Focus sur le premier champ
+        document.getElementById('{{ form.username.id_for_label }}').focus();
+        
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.style.opacity = '0';
+            form.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                form.style.transition = 'all 0.5s ease-out';
+                form.style.opacity = '1';
+                form.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
